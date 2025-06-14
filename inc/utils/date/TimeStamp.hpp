@@ -46,7 +46,7 @@ public:
   static TimeStamp now();
 
   // @brief 获取一个无效的时间戳
-  static TimeStamp valid() { return TimeStamp(); }
+  static TimeStamp invalid() { return TimeStamp(); }
 
   /**
    * @brief 为时间戳增加时间，以秒为输入参数
