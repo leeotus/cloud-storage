@@ -1,0 +1,28 @@
+file(GLOB_RECURSE NET_HEADERS "${CLOUD_STORAGE_INCLUDE_DIR}/net/*.hpp")
+file(GLOB_RECURSE NET_SOURCES **.cpp)
+
+message(building '${CLOUD_STORAGE_CORE_NAME}-net' ...)
+
+add_library("${CLOUD_STORAGE_CORE_NAME}-net" ${NET_HEADERS} ${NET_SOURCES})
+target_link_libraries(
+  "${CLOUD_STORAGE_CORE_NAME}-net"
+  pthread rt FLK::CoreUtils
+)
+
+target_include_directories(
+  "${CLOUD_STORAGE_CORE_NAME}-net" PUBLIC
+  "${CLOUD_STORAGE_INCLUDE_DIR}"
+  "${CMAKE_CURRENT_BINARY_DIR}"
+  "${CMAKE_BINARY_DIR}"
+)
+
+add_library(FLK::CoreNet ALIAS "${CLOUD_STORAGE_CORE_NAME}-net")
+
+set_target_properties(
+  "${CLOUD_STORAGE_CORE_NAME}-net"
+  PROPERTIES
+  VERSION ${PROJECT_VERSION}
+  SOVERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+  LINKER_LANGUAGE CXX
+  EXPORT_NAME CoreNet
+)
