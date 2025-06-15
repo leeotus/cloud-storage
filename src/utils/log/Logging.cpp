@@ -13,7 +13,9 @@ __thread char t_errnobuf[512];
 __thread char t_time[64];
 __thread time_t t_lastSecond;
 
-inline Logger::LogLevel Logger::logLevel() { return g_logLevel; }
+Logger::LogLevel g_logLevel;
+
+Logger::LogLevel Logger::logLevel() { return g_logLevel; }
 
 const char* strerror_tl(int savedErrno)
 {

@@ -115,7 +115,7 @@ Thread::~Thread()
 
 void Thread::setDefaultName()
 {
-    int num = numCreated_.incrementAndGet();
+    int num = thread::numCreated_.incrementAndGet();
     if (name_.empty())
     {
         char buf[32];
