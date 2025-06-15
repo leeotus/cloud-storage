@@ -38,3 +38,6 @@
 /build
 .clang-format
 .clang-tidy
+/cmake-build-debug
+/.idea
+.editorconfig
