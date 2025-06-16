@@ -2469,7 +2469,7 @@ private:
 int main() {
   Logger::setLogLevel(Logger::INFO);
   EventLoop loop;
-  HttpServer server(&loop, InetAddress(8000), "http-upload-test");
+  HttpServer server(&loop, InetAddress(8080), "http-upload-test");
 
   // 创建HTTP处理器
   auto handler = std::make_shared<HttpUploadHandler>(4);
@@ -2486,8 +2486,8 @@ int main() {
 
   server.setThreadNum(0);
   server.start();
-  std::cout << "HTTP upload server is running on port 8000..." << std::endl;
-  std::cout << "Please visit http://localhost:8000" << std::endl;
+  std::cout << "HTTP upload server is running on port 8080..." << std::endl;
+  std::cout << "Please visit http://localhost:8080" << std::endl;
   loop.loop();
   return 0;
 }

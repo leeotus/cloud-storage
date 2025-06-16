@@ -1,0 +1,2015 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>C++个人云存储项目</title>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <style>
+    :root {
+      --bg-primary: #0f0f0f;
+      --bg-secondary: #1a1a1a;
+      --bg-tertiary: #252525;
+      --bg-quaternary: #303030;
+      --text-primary: #e0e0e0;
+      --text-secondary: #a0a0a0;
+      --accent-primary: #4CAF50;
+      --accent-secondary: #2196F3;
+      --accent-danger: #f44336;
+      --accent-warning: #FF9800;
+      --border-primary: #333;
+      --border-secondary: #444;
+      --shadow-primary: 0 4px 12px rgba(0,0,0,0.3);
+      --shadow-secondary: 0 6px 16px rgba(0,0,0,0.4);
+      --radius: 12px;
+      --transition: all 0.3s ease;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid var(--border-primary);
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      color: var(--text-primary);
+    }
+
+    .username-display {
+      font-weight: 500;
+    }
+
+    h1, h2, h3 {
+      color: #ffffff;
+      text-align: center;
+      margin-bottom: 30px;
+      position: relative;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      letter-spacing: 1px;
+    }
+
+    h2 {
+      font-size: 1.8rem;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--border-secondary);
+    }
+
+    h3 {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+    }
+
+    .upload-form {
+      border: 2px dashed var(--accent-secondary);
+      padding: 40px 20px;
+      text-align: center;
+      margin: 30px 0;
+      background-color: var(--bg-secondary);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-primary);
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .upload-form::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary), var(--accent-warning), var(--accent-danger), var(--accent-secondary), var(--accent-primary));
+      background-size: 200% 100%;
+      animation: borderGradient 8s linear infinite;
+    }
+
+    @keyframes borderGradient {
+      0% { background-position: 0% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    .upload-form:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-secondary);
+      border-color: var(--accent-secondary);
+    }
+
+    .upload-form .drop-zone {
+      margin-bottom: 20px;
+    }
+
+    .upload-form input[type="file"] {
+      padding: 12px 15px;
+      border: 1px solid var(--border-primary);
+      border-radius: 8px;
+      width: 100%;
+      max-width: 400px;
+      background-color: var(--bg-tertiary);
+      color: var(--text-primary);
+      font-size: 1rem;
+      transition: var(--transition);
+    }
+
+    .upload-form input[type="file"]:hover {
+      border-color: var(--accent-secondary);
+    }
+
+    .upload-button {
+      background: linear-gradient(135deg, var(--accent-primary), #388e3c);
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 500;
+      margin-top: 15px;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .upload-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 15px rgba(76, 175, 80, 0.3);
+    }
+
+    .upload-button i {
+      font-size: 1.2rem;
+    }
+
+    .progress {
+      width: 100%;
+      height: 8px;
+      background-color: var(--bg-quaternary);
+      margin: 20px 0 0;
+      border-radius: 50px;
+      overflow: hidden;
+      position: relative;
+      display: none;
+    }
+
+    .progress-bar {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-primary), #43a047);
+      transition: width 0.3s;
+      border-radius: 50px;
+      position: relative;
+    }
+
+    .progress-bar::after {
+      content: attr(aria-valuenow) "%";
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.8rem;
+      color: white;
+      font-weight: bold;
+    }
+
+    .file-list {
+      /* 改用 Flex 布局 */
+      display: flex;
+      /* 让子项垂直排列，每行 1 个 */
+      flex-direction: column;
+      /* 保持间距（可根据需求调整） */
+      gap: 20px;
+    }
+
+    .file-item {
+      padding: 20px;
+      border: 1px solid var(--border-primary);
+      border-radius: var(--radius);
+      background-color: var(--bg-secondary);
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-primary);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .file-item::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 5px;
+      height: 100%;
+      background-color: var(--accent-secondary);
+      transition: var(--transition);
+    }
+
+    .file-item:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-secondary);
+      border-color: var(--border-secondary);
+    }
+
+    .file-item:hover::before {
+      width: 10px;
+    }
+
+    .file-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border-primary);
+    }
+
+    .file-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: var(--bg-tertiary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 15px;
+      font-size: 1.5rem;
+      color: var(--accent-secondary);
+    }
+
+    .file-name {
+      font-size: 1.1em;
+      font-weight: 600;
+      color: #ffffff;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      flex: 1;
+    }
+
+    .file-actions {
+      display: flex;
+      gap: 10px;
+      margin-left: 15px;
+    }
+
+    .action-button {
+      padding: 8px 12px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9em;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background-color: var(--bg-tertiary);
+      font-weight: 500;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+
+    .action-button:hover {
+      transform: translateY(-2px);
+    }
+
+    .download-button {
+      background-color: var(--accent-primary);
+      color: white;
+    }
+
+    .download-button:hover {
+      background-color: #388e3c;
+      box-shadow: 0 4px 8px rgba(76, 175, 80, 0.4);
+    }
+
+    .preview-button {
+      background-color: var(--accent-secondary);
+      color: white;
+    }
+
+    .preview-button:hover {
+      background-color: #1976D2;
+      box-shadow: 0 4px 8px rgba(33, 150, 243, 0.4);
+    }
+
+    .delete-button {
+      background-color: var(--accent-danger);
+      color: white;
+    }
+
+    .delete-button:hover {
+      background-color: #c62828;
+      box-shadow: 0 4px 8px rgba(244, 67, 54, 0.4);
+    }
+
+    .share-button {
+      background-color: var(--accent-warning);
+      color: white;
+    }
+
+    .share-button:hover {
+      background-color: #f57c00;
+      box-shadow: 0 4px 8px rgba(255, 152, 0, 0.4);
+    }
+
+    .file-info {
+      color: var(--text-secondary);
+      font-size: 0.9em;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 15px;
+    }
+
+    .file-meta {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    .share-status {
+      margin-top: 15px;
+      padding: 12px;
+      background-color: var(--bg-tertiary);
+      border-radius: 8px;
+      border-left: 3px solid var(--accent-secondary);
+    }
+
+    .share-status h4 {
+      color: var(--accent-secondary);
+      margin-bottom: 8px;
+      font-size: 1rem;
+    }
+
+    .share-link {
+      color: var(--accent-secondary);
+      word-break: break-all;
+      display: block;
+      margin-top: 5px;
+      text-decoration: none;
+    }
+
+    .share-link:hover {
+      text-decoration: underline;
+    }
+
+    .login-form {
+      border: 2px solid var(--accent-secondary);
+      padding: 40px;
+      text-align: center;
+      margin: 30px auto;
+      background-color: var(--bg-secondary);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-primary);
+      max-width: 450px;
+      position: relative;
+    }
+
+    .login-form::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent-secondary), var(--accent-primary), var(--accent-warning), var(--accent-danger), var(--accent-secondary));
+      background-size: 200% 100%;
+      animation: borderGradient 8s linear infinite;
+    }
+
+    .auth-title {
+      color: #ffffff;
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 2rem;
+    }
+
+    .auth-subtitle {
+      color: var(--text-secondary);
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 1rem;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 15px;
+      border: 1px solid var(--border-primary);
+      border-radius: 8px;
+      font-size: 1rem;
+      background-color: var(--bg-tertiary);
+      color: var(--text-primary);
+      transition: var(--transition);
+    }
+
+    .form-group input:focus {
+      border-color: var(--accent-secondary);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2);
+    }
+
+    .error-message {
+      color: var(--accent-danger);
+      font-size: 0.9em;
+      margin-top: 5px;
+      display: none;
+    }
+
+    .auth-links {
+      text-align: center;
+      margin-top: 25px;
+      font-size: 0.9em;
+    }
+
+    .auth-links a {
+      color: var(--accent-secondary);
+      text-decoration: none;
+      margin: 0 10px;
+      transition: var(--transition);
+    }
+
+    .auth-links a:hover {
+      text-decoration: underline;
+      color: #42a5f5;
+    }
+
+    .dialog {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--bg-secondary);
+      padding: 30px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-secondary);
+      z-index: 1001;
+      width: 90%;
+      max-width: 600px;
+      border: 1px solid var(--border-primary);
+      animation: dialogFadeIn 0.3s ease;
+    }
+
+    @keyframes dialogFadeIn {
+      from { opacity: 0; transform: translate(-50%, -50%) scale(0.95); }
+      to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    }
+
+    .dialog-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 25px;
+    }
+
+    .dialog-button {
+      padding: 12px 25px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: var(--transition);
+      font-weight: 500;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+
+    .dialog-button.primary {
+      background-color: var(--accent-secondary);
+      color: white;
+    }
+
+    .dialog-button.primary:hover {
+      background-color: #1976D2;
+      box-shadow: 0 4px 8px rgba(33, 150, 243, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .dialog-button.secondary {
+      background-color: var(--bg-tertiary);
+      color: var(--text-primary);
+    }
+
+    .dialog-button.secondary:hover {
+      background-color: var(--bg-quaternary);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+      transform: translateY(-2px);
+    }
+
+    .share-options {
+      margin: 20px 0;
+    }
+
+    .share-type {
+      margin: 15px 0;
+      padding: 15px;
+      background: var(--bg-tertiary);
+      border-radius: 8px;
+      border: 1px solid var(--border-primary);
+    }
+
+    .share-type label {
+      display: block;
+      margin: 10px 0;
+      cursor: pointer;
+      padding: 12px;
+      border-radius: 6px;
+      transition: var(--transition);
+      background-color: var(--bg-quaternary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .share-type label:hover {
+      background-color: var(--bg-secondary);
+      border-color: var(--border-secondary);
+    }
+
+    .share-type input[type="radio"] {
+      accent-color: var(--accent-secondary);
+    }
+
+    .user-search {
+      margin: 15px 0;
+      display: none;
+    }
+
+    .user-search input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--border-primary);
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: var(--transition);
+      background-color: var(--bg-tertiary);
+      color: var(--text-primary);
+    }
+
+    .user-search input:focus {
+      border-color: var(--accent-secondary);
+      outline: none;
+    }
+
+    .user-list {
+      max-height: 200px;
+      overflow-y: auto;
+      border: 1px solid var(--border-primary);
+      border-radius: 8px;
+      margin-top: 10px;
+      background: var(--bg-tertiary);
+    }
+
+    .user-item {
+      padding: 12px 15px;
+      cursor: pointer;
+      border-bottom: 1px solid var(--border-primary);
+      transition: var(--transition);
+      color: var(--text-primary);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .user-item:hover {
+      background-color: var(--bg-quaternary);
+    }
+
+    .user-item:last-child {
+      border-bottom: none;
+    }
+
+    .expire-time {
+      margin: 15px 0;
+      display: none;
+      padding: 15px;
+      background: var(--bg-tertiary);
+      border-radius: 8px;
+      border: 1px solid var(--border-primary);
+    }
+
+    .expire-time select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--border-primary);
+      border-radius: 8px;
+      font-size: 1rem;
+      background: var(--bg-quaternary);
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .expire-time select:hover {
+      border-color: var(--accent-secondary);
+    }
+
+    .share-info {
+      margin: 20px 0;
+      padding: 15px;
+      background: var(--bg-tertiary);
+      border-radius: 8px;
+      display: none;
+      border-left: 3px solid var(--accent-secondary);
+    }
+
+    .share-info-item {
+      margin: 15px 0;
+    }
+
+    .share-info-item label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: var(--text-primary);
+    }
+
+    .share-info-item .content {
+      display: flex;
+      align-items: center;
+      background: var(--bg-quaternary);
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border-primary);
+      gap: 10px;
+    }
+
+    .share-info-item .text {
+      flex: 1;
+      word-break: break-all;
+      color: var(--text-primary);
+    }
+
+    .copy-button {
+      background-color: var(--accent-secondary);
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: var(--transition);
+      white-space: nowrap;
+    }
+
+    .copy-button:hover {
+      background-color: #1976D2;
+      transform: translateY(-2px);
+    }
+
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      backdrop-filter: blur(2px);
+      animation: overlayFadeIn 0.3s ease;
+    }
+
+    @keyframes overlayFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .video-player {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--bg-secondary);
+      padding: 15px;
+      border-radius: var(--radius);
+      z-index: 1001;
+      max-width: 95%;
+      max-height: 95vh;
+      border: 1px solid var(--border-primary);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+      animation: dialogFadeIn 0.3s ease;
+    }
+
+    .video-player video {
+      max-width: 100%;
+      max-height: 85vh;
+      display: block;
+      margin: 0 auto;
+      background-color: #000;
+      border-radius: 8px;
+    }
+
+    .close-button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 0;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1002;
+      transition: var(--transition);
+    }
+
+    .close-button:hover {
+      color: var(--accent-danger);
+      transform: scale(1.1);
+    }
+
+    .video-controls {
+      position: relative;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 12px;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .speed-control {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .speed-control select {
+      padding: 6px 10px;
+      border: none;
+      border-radius: 4px;
+      background-color: var(--bg-quaternary);
+      color: var(--text-primary);
+      cursor: pointer;
+    }
+
+    .image-preview {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--bg-secondary);
+      padding: 20px;
+      border-radius: var(--radius);
+      z-index: 1000;
+      max-width: 90%;
+      max-height: 90vh;
+      border: 1px solid var(--border-primary);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+      animation: dialogFadeIn 0.3s ease;
+    }
+
+    .image-preview img {
+      max-width: 100%;
+      max-height: 80vh;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+
+    .message {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translate(-50%, -100%);
+      padding: 15px 25px;
+      border-radius: 8px;
+      background: var(--bg-secondary);
+      box-shadow: var(--shadow-secondary);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 9999;
+      opacity: 0;
+      transition: all 0.3s ease;
+      border-left: 4px solid transparent;
+    }
+
+    .message.show {
+      transform: translate(-50%, 0);
+      opacity: 1;
+    }
+
+    .message i {
+      font-size: 1.3em;
+    }
+
+    .message.success {
+      border-left-color: var(--accent-primary);
+    }
+
+    .message.error {
+      border-left-color: var(--accent-danger);
+    }
+
+    .message.info {
+      border-left-color: var(--accent-secondary);
+    }
+
+    .logout-button {
+      background-color: var(--accent-danger);
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-left: 10px;
+      transition: var(--transition);
+      font-weight: 500;
+      box-shadow: 0 2px 5px rgba(244, 67, 54, 0.3);
+    }
+
+    .logout-button:hover {
+      background-color: #c62828;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(244, 67, 54, 0.4);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+      }
+
+      h1 {
+        font-size: 1.8rem;
+      }
+
+      h2 {
+        font-size: 1.5rem;
+      }
+
+      .file-list {
+        /* 改用 Flex 布局 */
+        display: flex;
+        /* 让子项垂直排列，每行 1 个 */
+        flex-direction: column;
+        /* 保持间距（可根据需求调整） */
+        gap: 20px;
+      }
+
+      .upload-form, .login-form {
+        padding: 25px;
+      }
+
+      .file-actions {
+        flex-direction: column;
+        gap: 8px;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<div id="user-info" class="user-info hidden">
+  欢迎，<span id="username-display" class="username-display"></span>
+  <button onclick="logout()" class="logout-button">
+    <i class="fas fa-sign-out-alt"></i> 退出登录
+  </button>
+</div>
+
+<div id="login-form" class="login-form">
+  <h2 class="auth-title">欢迎回来</h2>
+  <p class="auth-subtitle">登录您的账户以继续使用C++个人云存储项目</p>
+
+  <div class="form-group">
+    <label for="username">用户名</label>
+    <input type="text" id="username" placeholder="请输入用户名">
+    <div id="username-error" class="error-message"></div>
+  </div>
+
+  <div class="form-group">
+    <label for="password">密码</label>
+    <input type="password" id="password" placeholder="请输入密码">
+    <div id="password-error" class="error-message"></div>
+  </div>
+
+  <button onclick="login()" class="upload-button">
+    <i class="fas fa-sign-in-alt"></i> 登录
+  </button>
+
+  <div class="auth-links">
+    <a href="register.html">还没有账号？立即注册</a>
+  </div>
+</div>
+
+<div id="main-content" class="hidden">
+  <header>
+    <h1>C++个人云存储项目</h1>
+  </header>
+
+  <div class="upload-form">
+    <div class="drop-zone">
+      <input type="file" id="file-input">
+    </div>
+    <button class="upload-button" onclick="uploadFile()">
+      <i class="fas fa-upload"></i> 上传文件
+    </button>
+    <div class="progress">
+      <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+  </div>
+
+  <h2>已上传文件列表</h2>
+  <div id="file-list" class="file-list"></div>
+
+  <!-- 添加视频播放器和遮罩层 -->
+  <div class="overlay" id="overlay"></div>
+  <div class="video-player" id="video-player">
+    <button class="close-button" id="video-close-button">&times;</button>
+    <video id="video-element" controls>
+      您的浏览器不支持视频播放。
+    </video>
+    <div class="video-controls">
+      <div class="speed-control">
+        <label for="playback-speed">播放速度:</label>
+        <select id="playback-speed">
+          <option value="0.5">0.5x</option>
+          <option value="0.75">0.75x</option>
+          <option value="1" selected>1x</option>
+          <option value="1.25">1.25x</option>
+          <option value="1.5">1.5x</option>
+          <option value="2">2x</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- 添加图片预览容器 -->
+  <div class="image-preview" id="image-preview">
+    <button class="close-button" onclick="closeImagePreview()">&times;</button>
+    <img id="preview-image" src="" alt="预览图片">
+  </div>
+
+  <div class="share-dialog dialog">
+    <h3>分享文件</h3>
+    <div class="share-options">
+      <div class="share-type">
+        <label>
+          <input type="radio" name="shareType" value="public" checked>
+          <i class="fas fa-globe"></i> 完全公开（任何人可访问）
+        </label>
+        <label>
+          <input type="radio" name="shareType" value="protected">
+          <i class="fas fa-lock"></i> 需要提取码（任何人可通过提取码访问）
+        </label>
+        <label>
+          <input type="radio" name="shareType" value="user">
+          <i class="fas fa-user-friends"></i> 指定用户（仅特定用户可访问）
+        </label>
+      </div>
+
+      <div class="user-search">
+        <input type="text" placeholder="搜索用户..." id="userSearchInput">
+        <div class="user-list"></div>
+      </div>
+
+      <div class="expire-time">
+        <label for="expire-select">过期时间</label>
+        <select id="expire-select">
+          <option value="0">永不过期</option>
+          <option value="1">1小时</option>
+          <option value="24">24小时</option>
+          <option value="168">7天</option>
+          <option value="720">30天</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="share-info" style="display: none;">
+      <div class="share-info-item">
+        <label>分享链接</label>
+        <div class="content">
+          <span class="text" id="shareLink"></span>
+          <button class="copy-button" onclick="copyAndClose('shareLink')">
+            <i class="fas fa-copy"></i> 复制并关闭
+          </button>
+        </div>
+      </div>
+      <div class="share-info-item" id="extractCodeContainer" style="display: none;">
+        <label>提取码</label>
+        <div class="content">
+          <span class="text" id="extractCode"></span>
+          <button class="copy-button" onclick="copyAndClose('extractCode')">
+            <i class="fas fa-copy"></i> 复制并关闭
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="dialog-buttons">
+      <button class="dialog-button primary" onclick="shareFile()">
+        <i class="fas fa-share-alt"></i> 分享
+      </button>
+      <button class="dialog-button secondary" onclick="closeShareDialog()">
+        <i class="fas fa-times"></i> 取消
+      </button>
+    </div>
+  </div>
+</div>
+<script>
+  // 添加 AbortController 用于控制视频连接
+  let videoAbortController = null;
+
+  // 会话管理
+  let sessionId = localStorage.getItem('sessionId');
+  let currentUser = localStorage.getItem('username');
+
+  // 下载文件函数
+  async function downloadFile(filename, originalName) {
+    if (!sessionId) {
+      alert('请先登录');
+      return;
+    }
+
+    try {
+      const response = await fetch(`/download/${filename}`, {
+        headers: {
+          'X-Session-ID': sessionId
+        }
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || '下载失败');
+      }
+
+      // 获取文件内容并创建下载
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = originalName;  // 使用原始文件名
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      alert('下载失败: ' + error.message);
+    }
+  }
+
+  // 检查登录状态
+  function checkLoginStatus() {
+    if (sessionId && currentUser) {
+      document.getElementById('login-form').classList.add('hidden');
+      document.getElementById('main-content').classList.remove('hidden');
+      document.getElementById('user-info').classList.remove('hidden');
+      document.getElementById('username-display').textContent = currentUser;
+      loadFileList();
+    } else {
+      document.getElementById('login-form').classList.remove('hidden');
+      document.getElementById('main-content').classList.add('hidden');
+      document.getElementById('user-info').classList.add('hidden');
+    }
+  }
+
+  // 登录函数
+  function login() {
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+
+    // 重置错误提示
+    document.getElementById('username-error').style.display = 'none';
+    document.getElementById('password-error').style.display = 'none';
+
+    // 表单验证
+    let hasError = false;
+    if (!username) {
+      document.getElementById('username-error').textContent = '请输入用户名';
+      document.getElementById('username-error').style.display = 'block';
+      hasError = true;
+    }
+    if (!password) {
+      document.getElementById('password-error').textContent = '请输入密码';
+      document.getElementById('password-error').style.display = 'block';
+      hasError = true;
+    }
+
+    if (hasError) {
+      return;
+    }
+
+    fetch('/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        username: username,
+        password: password
+      })
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.code === 0) {
+          sessionId = data.sessionId;
+          currentUser = username;
+          localStorage.setItem('sessionId', sessionId);
+          localStorage.setItem('username', username);
+          checkLoginStatus();
+        } else {
+          // 显示具体的错误信息
+          if (data.message.includes('用户名')) {
+            document.getElementById('username-error').textContent = data.message;
+            document.getElementById('username-error').style.display = 'block';
+          } else if (data.message.includes('密码')) {
+            document.getElementById('password-error').textContent = data.message;
+            document.getElementById('password-error').style.display = 'block';
+          } else {
+            alert(data.message);
+          }
+        }
+      })
+      .catch(error => {
+        alert('登录失败: ' + error);
+      });
+  }
+
+  // 退出登录
+  function logout() {
+    fetch('/logout', {
+      method: 'POST',
+      headers: {
+        'X-Session-ID': sessionId
+      }
+    })
+      .then(response => response.json())
+      .then(data => {
+        localStorage.removeItem('sessionId');
+        localStorage.removeItem('username');
+        sessionId = null;
+        currentUser = null;
+        checkLoginStatus();
+      })
+      .catch(error => {
+        console.error('退出失败:', error);
+      });
+  }
+
+  // 修改现有函数以添加会话ID
+  function uploadFile() {
+    if (!sessionId) {
+      alert('请先登录');
+      return;
+    }
+
+    const fileInput = document.getElementById('file-input');
+    const file = fileInput.files[0];
+    if (!file) {
+      alert('请选择文件');
+      return;
+    }
+
+    const progress = document.querySelector('.progress');
+    const progressBar = document.querySelector('.progress-bar');
+    progress.style.display = 'block';
+
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', '/upload', true);
+    xhr.setRequestHeader('X-Session-ID', sessionId);
+
+    xhr.upload.onprogress = function(e) {
+      if (e.lengthComputable) {
+        const percentComplete = (e.loaded / e.total) * 100;
+        progressBar.style.width = percentComplete + '%';
+      }
+    };
+
+    xhr.onload = function() {
+      if (xhr.status === 200) {
+        alert('上传成功');
+        loadFileList();
+      } else {
+        const response = JSON.parse(xhr.responseText);
+        alert('上传失败: ' + response.message);
+      }
+      progress.style.display = 'none';
+      progressBar.style.width = '0%';
+      fileInput.value = '';  // 清空文件选择
+    };
+
+    const formData = new FormData();
+    formData.append('file', file);
+    xhr.setRequestHeader('X-File-Name', encodeURIComponent(file.name));
+    xhr.send(formData);
+  }
+
+  function loadFileList() {
+    if (!sessionId) {
+      return;
+    }
+
+    fetch('/files', {
+      headers: {
+        'X-Session-ID': sessionId
+      }
+    })
+      .then(response => {
+        if (response.status === 401) {
+          localStorage.removeItem('sessionId');
+          localStorage.removeItem('username');
+          sessionId = null;
+          currentUser = null;
+          checkLoginStatus();
+          throw new Error('会话已过期，请重新登录');
+        }
+        return response.json();
+      })
+      .then(data => {
+        const fileList = document.getElementById('file-list');
+        fileList.innerHTML = '';
+        data.files.forEach(file => {
+          const div = document.createElement('div');
+          div.className = 'file-item';
+
+          const headerDiv = document.createElement('div');
+          headerDiv.className = 'file-header';
+
+          const nameSpan = document.createElement('span');
+          nameSpan.className = 'file-name';
+          nameSpan.textContent = file.originalName;
+
+          const actionsDiv = document.createElement('div');
+          actionsDiv.className = 'file-actions';
+
+          const fileExtension = file.originalName.split('.').pop().toLowerCase();
+          const isVideo = fileExtension === 'mp4';
+          const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileExtension);
+
+          // 下载按钮
+          const downloadButton = document.createElement('button');
+          downloadButton.className = 'action-button download-button';
+          downloadButton.innerHTML = '<i class="fas fa-download"></i> 下载';
+          downloadButton.onclick = () => downloadFile(file.name, file.originalName);
+
+          // 预览按钮
+          if (isVideo || isImage) {
+            const previewButton = document.createElement('button');
+            previewButton.className = 'action-button preview-button';
+            previewButton.innerHTML = '<i class="fas fa-eye"></i> 预览';
+            previewButton.onclick = () => {
+              if (isVideo) {
+                playVideo(file.name);
+              } else {
+                previewImage(file.name);
+              }
+            };
+            actionsDiv.appendChild(previewButton);
+          }
+
+          // 分享按钮
+          if (file.isOwner) {
+            const shareButton = document.createElement('button');
+            shareButton.className = 'action-button share-button';
+            shareButton.innerHTML = '<i class="fas fa-share-alt"></i> 分享';
+            shareButton.onclick = () => openShareDialog(file);
+            actionsDiv.appendChild(shareButton);
+
+            // 如果有分享信息，添加取消分享按钮
+            if (file.shareInfo && file.shareInfo.type !== 'private') {
+              const cancelShareButton = document.createElement('button');
+              cancelShareButton.className = 'action-button cancel-share-button';
+              cancelShareButton.innerHTML = '<i class="fas fa-times-circle"></i> 取消分享';
+              cancelShareButton.onclick = () => {
+                if (confirm('确定要取消分享吗？')) {
+                  cancelShare(file.id);
+                }
+              };
+              actionsDiv.appendChild(cancelShareButton);
+            }
+          }
+
+          // 删除按钮
+          if (file.isOwner) {
+            const deleteButton = document.createElement('button');
+            deleteButton.className = 'action-button delete-button';
+            deleteButton.innerHTML = '<i class="fas fa-trash"></i> 删除';
+            deleteButton.onclick = () => {
+              if (confirm('确定要删除这个文件吗？')) {
+                deleteFile(file.name);
+              }
+            };
+            actionsDiv.appendChild(deleteButton);
+          }
+
+          actionsDiv.appendChild(downloadButton);
+
+          headerDiv.appendChild(nameSpan);
+          headerDiv.appendChild(actionsDiv);
+
+          const infoDiv = document.createElement('div');
+          infoDiv.className = 'file-info';
+          infoDiv.innerHTML = `
+                    <span>大小: ${formatSize(file.size)}</span>
+                    <span>上传时间: ${file.createdAt}</span>
+                `;
+
+          // 如果有分享信息，显示分享状态
+          if (file.shareInfo) {
+            const shareStatus = document.createElement('div');
+            shareStatus.className = 'share-status';
+            shareStatus.style.marginTop = '10px';
+            shareStatus.style.color = '#9e9e9e';
+
+            let shareText = getShareTypeText(file.shareInfo.type);
+            if (file.shareInfo.type === 'user' && file.shareInfo.sharedWithUsername) {
+              shareText += ` (分享给：${file.shareInfo.sharedWithUsername})`;
+            }
+
+            if (file.shareInfo.expireTime) {
+              shareText += ` (过期时间：${new Date(file.shareInfo.expireTime).toLocaleString()})`;
+            }
+
+            let statusHtml = `分享状态：${shareText}`;
+
+            if (file.shareInfo.shareCode) {
+              const shareLink = `${window.location.origin}/share/${file.shareInfo.shareCode}`;
+              statusHtml += `<br>分享链接：<a href="${shareLink}" target="_blank">${shareLink}</a>
+                            <button class="copy-button" onclick="copyText('share-link-${file.id}')">复制链接</button>`;
+
+              if (file.shareInfo.type === 'protected' && file.shareInfo.extractCode) {
+                statusHtml += `<br>提取码：<span id="extract-code-${file.id}">${file.shareInfo.extractCode}</span>
+                                <button class="copy-button" onclick="copyText('extract-code-${file.id}')">复制提取码</button>`;
+              }
+            }
+
+            shareStatus.innerHTML = statusHtml;
+            infoDiv.appendChild(shareStatus);
+          }
+
+          div.appendChild(headerDiv);
+          div.appendChild(infoDiv);
+          fileList.appendChild(div);
+        });
+      })
+      .catch(error => {
+        console.error('加载文件列表失败:', error);
+      });
+  }
+
+  function formatSize(bytes) {
+    const units = ['B', 'KB', 'MB', 'GB'];
+    let size = bytes;
+    let unitIndex = 0;
+    while (size >= 1024 && unitIndex < units.length - 1) {
+      size /= 1024;
+      unitIndex++;
+    }
+    return size.toFixed(2) + ' ' + units[unitIndex];
+  }
+
+  function playVideo(filename) {
+    if (!sessionId) {
+      alert('请先登录');
+      return;
+    }
+
+    const videoPlayer = document.getElementById('video-player');
+    const videoElement = document.getElementById('video-element');
+    const overlay = document.getElementById('overlay');
+    const closeButton = document.getElementById('video-close-button');
+
+    // 显示播放器和遮罩层
+    videoPlayer.style.display = 'block';
+    overlay.style.display = 'block';
+
+    // 准备视频URL
+    let videoUrl = `/download/${filename}?sessionId=${sessionId}`;
+
+    // 设置视频属性
+    videoElement.preload = 'metadata'; // 只预加载元数据
+    videoElement.autoplay = true;
+
+    // 添加元数据加载完成事件
+    videoElement.addEventListener('loadedmetadata', function() {
+      console.log('视频元数据已加载，时长:', videoElement.duration);
+
+      // 保存原始视频URL和时长信息
+      const originalSrc = videoElement.src;
+      videoElement.dataset.originalSrc = originalSrc;
+      videoElement.dataset.duration = videoElement.duration;
+
+      // 设置目标缓冲时间（秒）
+      const targetBufferTime = 5; // 目标缓冲5秒钟的数据
+      const minBufferPercent = 0.1; // 或者至少缓冲视频总时长的10%
+      const minBufferSeconds = Math.min(targetBufferTime, videoElement.duration * minBufferPercent);
+
+      console.log(`元数据已加载，开始缓冲初始数据(目标: ${minBufferSeconds.toFixed(2)}秒)...`);
+
+      // 设置缓冲检查定时器
+      const bufferCheckInterval = setInterval(() => {
+        // 如果用户已经开始播放，不中断连接
+        if (videoElement.hasAttribute('data-played')) {
+          clearInterval(bufferCheckInterval);
+          return;
+        }
+
+        // 检查缓冲进度
+        if (videoElement.buffered.length > 0) {
+          const bufferedEnd = videoElement.buffered.end(0);
+          console.log(`当前已缓冲: ${bufferedEnd.toFixed(2)}秒`);
+
+          // 如果已经缓冲了足够的数据，中断连接
+          if (bufferedEnd >= minBufferSeconds) {
+            clearInterval(bufferCheckInterval);
+            console.log(`已缓冲足够数据(${bufferedEnd.toFixed(2)}秒)，中断初始连接`);
+
+            videoElement.pause();
+            videoElement.removeAttribute('src');
+            videoElement.load(); // 终止网络请求
+          }
+        }
+      }, 500); // 每500ms检查一次缓冲状态
+
+      // 设置最大等待时间，避免无限等待
+      setTimeout(() => {
+        if (!videoElement.hasAttribute('data-played')) {
+          clearInterval(bufferCheckInterval);
+
+          // 即使没有达到理想的缓冲量，也进行检查
+          if (videoElement.buffered.length > 0) {
+            const bufferedEnd = videoElement.buffered.end(0);
+            console.log(`达到最大等待时间，当前已缓冲: ${bufferedEnd.toFixed(2)}秒`);
+
+            // 如果至少有1秒的数据，仍然中断连接
+            if (bufferedEnd >= 1) {
+              console.log(`虽未达到目标缓冲量，但已有${bufferedEnd.toFixed(2)}秒数据，中断连接`);
+              videoElement.pause();
+              videoElement.removeAttribute('src');
+              videoElement.load();
+            } else {
+              console.log(`缓冲量不足(${bufferedEnd.toFixed(2)}秒)，继续保持连接`);
+            }
+          } else {
+            console.log('缓冲异常，未检测到有效缓冲区');
+          }
+        }
+      }, 10000); // 最多等待10秒
+    });
+
+    // 添加播放事件，确保视频播放时源已设置
+    videoElement.addEventListener('play', function onFirstPlay() {
+      // 标记视频已经开始播放
+      videoElement.setAttribute('data-played', 'true');
+
+      // 仅在首次播放时执行
+      if (!videoElement.hasAttribute('data-playing')) {
+        console.log('首次播放，重新加载视频源');
+        videoElement.setAttribute('data-playing', 'true');
+
+        // 如果视频源不存在，但有保存的原始源，重新加载源
+        if (!videoElement.src && videoElement.dataset.originalSrc) {
+          videoElement.src = videoElement.dataset.originalSrc;
+        }
+      }
+    });
+
+    // 添加seeking事件，确保拖动进度条时能正常工作
+    videoElement.addEventListener('seeking', function() {
+      console.log('seeking to:', videoElement.currentTime);
+
+      // 确保视频源已加载
+      if (!videoElement.src && videoElement.dataset.originalSrc) {
+        console.log('拖动进度条时检测到视频源未加载，重新加载源');
+        videoElement.src = videoElement.dataset.originalSrc;
+        videoElement.setAttribute('data-played', 'true');
+      }
+    });
+
+    // 设置视频源，这将开始加载元数据
+    videoElement.src = videoUrl;
+
+    // 设置关闭按钮事件
+    closeButton.onclick = function() {
+      closeVideo();
+    };
+
+    // 点击遮罩层也可关闭视频
+    overlay.onclick = function() {
+      closeVideo();
+    };
+
+    // 添加ESC键关闭功能
+    const escHandler = function(event) {
+      if (event.key === 'Escape') {
+        closeVideo();
+      }
+    };
+    document.addEventListener('keydown', escHandler);
+
+    // 清理函数
+    videoElement.cleanup = function() {
+      document.removeEventListener('keydown', escHandler);
+
+      // 清理所有数据
+      delete videoElement.dataset.originalSrc;
+      delete videoElement.dataset.duration;
+      delete videoElement.dataset.played;
+    };
+  }
+
+  function closeVideo() {
+    const videoPlayer = document.getElementById('video-player');
+    const videoElement = document.getElementById('video-element');
+    const overlay = document.getElementById('overlay');
+
+    // 执行清理函数
+    if (typeof videoElement.cleanup === 'function') {
+      videoElement.cleanup();
+    }
+
+    // 停止视频播放
+    videoElement.pause();
+    videoElement.removeAttribute('src');
+    videoElement.load(); // 清除缓存和中断连接
+
+    // 隐藏播放器和遮罩层
+    videoPlayer.style.display = 'none';
+    overlay.style.display = 'none';
+
+    console.log('视频已关闭，资源已释放');
+  }
+
+  function deleteFile(filename) {
+    if (!sessionId) {
+      alert('请先登录');
+      return;
+    }
+
+    fetch(`/delete/${filename}`, {
+      method: 'DELETE',
+      headers: {
+        'X-Session-ID': sessionId
+      }
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.code === 0) {
+          alert('文件删除成功');
+          loadFileList();
+        } else {
+          alert('删除失败: ' + data.message);
+        }
+      })
+      .catch(error => {
+        alert('删除失败: ' + error);
+      });
+  }
+
+  function previewImage(filename, originalName) {
+    if (!sessionId) {
+      alert('请先登录');
+      return;
+    }
+
+    const imagePreview = document.getElementById('image-preview');
+    const previewImage = document.getElementById('preview-image');
+    const overlay = document.getElementById('overlay');
+
+    // 添加会话ID到图片源URL
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', `/download/${filename}`, true);
+    xhr.setRequestHeader('X-Session-ID', sessionId);
+    xhr.responseType = 'blob';
+
+    xhr.onload = function() {
+      if (xhr.status === 200) {
+        const imageUrl = URL.createObjectURL(xhr.response);
+        previewImage.src = imageUrl;
+      } else {
+        alert('加载图片失败');
+        closeImagePreview();
+      }
+    };
+
+    xhr.onerror = function() {
+      alert('加载图片失败');
+      closeImagePreview();
+    };
+
+    xhr.send();
+
+    // 显示预览区域
+    imagePreview.style.display = 'block';
+    overlay.style.display = 'block';
+
+    // 添加 Esc 键监听
+    const escHandler = function(event) {
+      if (event.key === 'Escape') {
+        closeImagePreview();
+      }
+    };
+    document.addEventListener('keydown', escHandler);
+
+    // 点击遮罩层也可以关闭预览
+    overlay.onclick = closeImagePreview;
+
+    // 保存事件监听器引用以便后续移除
+    window.currentEscHandler = escHandler;
+  }
+
+  function closeImagePreview() {
+    const imagePreview = document.getElementById('image-preview');
+    const overlay = document.getElementById('overlay');
+    const previewImage = document.getElementById('preview-image');
+
+    // 移除 Esc 键监听
+    if (window.currentEscHandler) {
+      document.removeEventListener('keydown', window.currentEscHandler);
+      window.currentEscHandler = null;
+    }
+
+    // 清除图片源
+    previewImage.src = '';
+
+    // 隐藏预览区域
+    imagePreview.style.display = 'none';
+    overlay.style.display = 'none';
+  }
+
+  // 添加页面卸载事件处理
+  window.addEventListener('beforeunload', function() {
+    closeVideo();
+  });
+
+  // 添加页面可见性变化事件处理
+  document.addEventListener('visibilitychange', function() {
+    if (document.hidden) {
+      closeVideo();
+    }
+  });
+
+  // 添加回车键登录支持
+  document.getElementById('username').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+      document.getElementById('password').focus();
+    }
+  });
+
+  document.getElementById('password').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+      login();
+    }
+  });
+
+  // 当前要分享的文件信息
+  let currentShareFile = null;
+  let selectedUserId = null;
+
+  // 打开分享对话框
+  function openShareDialog(file) {
+    currentShareFile = file;
+    document.querySelector('.share-dialog').style.display = 'block';
+    document.querySelector('.overlay').style.display = 'block';
+    document.querySelector('.share-info').style.display = 'none';
+    document.querySelector('.share-options').style.display = 'block';
+    resetShareForm();
+  }
+
+  // 关闭分享对话框
+  function closeShareDialog() {
+    document.querySelector('.share-dialog').style.display = 'none';
+    document.querySelector('.overlay').style.display = 'none';
+    currentShareFile = null;
+    selectedUserId = null;
+  }
+
+  // 重置分享表单
+  function resetShareForm() {
+    document.querySelector('input[value="public"]').checked = true;
+    document.querySelector('.user-search').style.display = 'none';
+    document.querySelector('.expire-time').style.display = 'none';
+    document.querySelector('.user-search input').value = '';
+    document.querySelector('.user-list').innerHTML = '';
+    document.querySelector('.expire-time select').value = '0';
+  }
+
+  // 处理分享类型变化
+  document.querySelectorAll('input[name="shareType"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+      const userSearch = document.querySelector('.user-search');
+      const expireTime = document.querySelector('.expire-time');
+
+      // 对于其他分享类型
+      userSearch.style.display = this.value === 'user' ? 'block' : 'none';
+      expireTime.style.display = 'block';
+
+      if (this.value === 'user') {
+        document.querySelector('#userSearchInput').focus();
+      }
+    });
+  });
+
+  // 搜索用户
+  let searchTimeout = null;
+  document.querySelector('#userSearchInput').addEventListener('input', function() {
+    clearTimeout(searchTimeout);
+    const searchTerm = this.value.trim();
+
+    if (searchTerm.length < 2) {
+      document.querySelector('.user-list').innerHTML = '';
+      return;
+    }
+
+    searchTimeout = setTimeout(() => {
+      searchUsers(searchTerm);
+    }, 300);
+  });
+
+  async function searchUsers(keyword) {
+    try {
+      const response = await fetch(`/users/search?keyword=${encodeURIComponent(keyword)}`, {
+        headers: {
+          'X-Session-ID': localStorage.getItem('sessionId')
+        }
+      });
+
+      const data = await response.json();
+      if (data.code === 0) {
+        displayUsers(data.users);
+      } else {
+        console.error('搜索用户失败:', data.message);
+      }
+    } catch (error) {
+      console.error('搜索用户出错:', error);
+    }
+  }
+
+  function displayUsers(users) {
+    const userList = document.querySelector('.user-list');
+    userList.innerHTML = '';
+
+    users.forEach(user => {
+      const userItem = document.createElement('div');
+      userItem.className = 'user-item';
+      userItem.textContent = user.username;
+      userItem.onclick = () => selectUser(user);
+      userList.appendChild(userItem);
+    });
+  }
+
+  function selectUser(user) {
+    selectedUserId = user.id;
+    document.querySelector('#userSearchInput').value = user.username;
+    document.querySelector('.user-list').innerHTML = '';
+  }
+
+  // 修改分享文件函数
+  async function shareFile() {
+    if (!currentShareFile) return;
+
+    const shareType = document.querySelector('input[name="shareType"]:checked').value;
+    if (shareType === 'private') return;
+
+    const expireHours = parseInt(document.querySelector('.expire-time select').value);
+
+    const shareData = {
+      fileId: currentShareFile.id,
+      shareType: shareType,
+      expireTime: expireHours || null
+    };
+
+    if (shareType === 'user' && selectedUserId) {
+      shareData.sharedWithId = selectedUserId;
+    }
+
+    try {
+      const response = await fetch('/share', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Session-ID': localStorage.getItem('sessionId')
+        },
+        body: JSON.stringify(shareData)
+      });
+
+      const data = await response.json();
+
+      if (data.code === 0) {
+        // 显示分享信息
+        document.querySelector('.share-options').style.display = 'none';
+        document.querySelector('.share-info').style.display = 'block';
+
+        const shareLink = `${window.location.origin}/share/${data.shareCode}`;
+        document.querySelector('#shareLink').textContent = shareLink;
+
+        const extractCodeContainer = document.querySelector('#extractCodeContainer');
+        if (data.extractCode) {
+          document.querySelector('#extractCode').textContent = data.extractCode;
+          extractCodeContainer.style.display = 'block';
+        } else {
+          extractCodeContainer.style.display = 'none';
+        }
+
+        // 更新文件列表中的分享状态
+        loadFileList();
+      } else {
+        showMessage(data.message, 'error');
+      }
+    } catch (error) {
+      console.error('分享文件出错:', error);
+      showMessage('分享文件失败，请稍后重试', 'error');
+    }
+  }
+
+  // 复制并关闭
+  function copyAndClose(elementId) {
+    const text = document.querySelector(`#${elementId}`).textContent;
+
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(() => {
+        showMessage('复制成功', 'success');
+        closeShareDialog();
+      }).catch(err => {
+        fallbackCopyTextAndClose(text);
+      });
+    } else {
+      fallbackCopyTextAndClose(text);
+    }
+  }
+
+  // 传统复制方法并关闭
+  function fallbackCopyTextAndClose(text) {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-9999px';
+    textArea.style.top = '0';
+
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+
+    try {
+      const successful = document.execCommand('copy');
+      if (successful) {
+        showMessage('复制成功', 'success');
+      } else {
+        showMessage('复制失败，请手动复制', 'error');
+      }
+    } catch (err) {
+      console.error('复制失败:', err);
+      showMessage('复制失败，请手动复制', 'error');
+    }
+
+    document.body.removeChild(textArea);
+    closeShareDialog();
+  }
+
+  // 显示消息提示
+  function showMessage(message, type) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${type}`;
+    messageDiv.innerHTML = `
+            <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+            <span>${message}</span>
+        `;
+
+    document.body.appendChild(messageDiv);
+
+    setTimeout(() => {
+      messageDiv.classList.add('show');
+    }, 10);
+
+    setTimeout(() => {
+      messageDiv.classList.remove('show');
+      setTimeout(() => {
+        document.body.removeChild(messageDiv);
+      }, 300);
+    }, 3000);
+  }
+
+  // 获取分享类型的中文描述
+  function getShareTypeText(shareType) {
+    const types = {
+      'private': '私有',
+      'public': '完全公开',
+      'protected': '需要提取码',
+      'user': '指定用户'
+    };
+    return types[shareType] || shareType;
+  }
+
+  // 添加取消分享函数
+  async function cancelShare(fileId) {
+    try {
+      const response = await fetch('/share', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Session-ID': localStorage.getItem('sessionId')
+        },
+        body: JSON.stringify({
+          fileId: fileId,
+          shareType: 'private'
+        })
+      });
+
+      const data = await response.json();
+      if (data.code === 0) {
+        showMessage('已取消分享', 'success');
+        loadFileList();
+      } else {
+        showMessage(data.message, 'error');
+      }
+    } catch (error) {
+      console.error('取消分享失败:', error);
+      showMessage('取消分享失败，请稍后重试', 'error');
+    }
+  }
+
+  // 复制文本内容
+  function copyText(elementId) {
+    const text = document.getElementById(elementId).textContent;
+
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(() => {
+        showMessage('复制成功', 'success');
+      }).catch(err => {
+        fallbackCopyText(text);
+      });
+    } else {
+      fallbackCopyText(text);
+    }
+  }
+
+  // 传统复制方法
+  function fallbackCopyText(text) {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-9999px';
+    textArea.style.top = '0';
+
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+
+    try {
+      const successful = document.execCommand('copy');
+      if (successful) {
+        showMessage('复制成功', 'success');
+      } else {
+        showMessage('复制失败，请手动复制', 'error');
+      }
+    } catch (err) {
+      console.error('复制失败:', err);
+      showMessage('复制失败，请手动复制', 'error');
+    }
+
+    document.body.removeChild(textArea);
+  }
+
+  // 页面加载时检查登录状态
+  checkLoginStatus();
+</script>
+
+</body>
+</html>
