@@ -99,6 +99,10 @@ int ReadSmallFile::readToBuffer(char *buffer, int size) {
  *!               AppendFile类函数
  *=============================================**/
 
+AppendFile::~AppendFile() {
+  ::fclose(fp_);
+}
+
 // @brief 无锁方式的写操作
 size_t AppendFile::write(const char *logline, size_t len) {
   return ::fwrite_unlocked(logline, 1, len, fp_);
