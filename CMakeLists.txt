@@ -11,3 +11,8 @@ option(BUILD_FILEKEEPER_APP "also build application for this project" ON)
 if(${BUILD_FILEKEEPER_APP})
   add_subdirectory(app)
 endif()
+
+option(BUILD_FILEKEEPER_TEST "also build tests for this library" ON)
+if(${BUILD_FILEKEEPER_TEST})
+  add_subdirectory(test)
+endif()

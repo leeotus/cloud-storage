@@ -118,5 +118,6 @@ cmake --build build --config Debug
 ![登录界面](imgs/login.png)
 ![注册界面](imgs/register.png)
 ![主页界面](imgs/index.png)
+![预览图片](imgs/preview.png)
 ![分享界面](imgs/share.png)
 
