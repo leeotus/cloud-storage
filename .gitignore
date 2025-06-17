@@ -42,3 +42,4 @@
 /.idea
 .editorconfig
 /uploads
+*.log
