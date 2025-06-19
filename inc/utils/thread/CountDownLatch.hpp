@@ -6,9 +6,7 @@
 #include "utils/thread/PMutex.hpp"
 #include "utils/Types.hpp"
 
-namespace flkeeper {
-
-namespace thread {
+namespace flkeeper::thread {
 
 /**
  * @brief 倒计时门闩类，用于线程同步
@@ -36,8 +34,8 @@ private:
   int count_;                       // 计数值
 };
 
-}   // namespace thread
+} // namespace flkeeper::thread
 
-}   // namespace flkeeper
+
 
 #endif

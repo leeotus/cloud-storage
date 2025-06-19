@@ -8,9 +8,7 @@
 #include <string>
 #include <sys/types.h>
 
-namespace flkeeper {
-
-namespace log {
+namespace flkeeper::log {
 
 using std::string;
 
@@ -75,8 +73,8 @@ private:
   const static int kRollPerSeconds_ = 60 * 60 * 24; // 一天
 };
 
-} // namespace log
+} // namespace flkeeper::log
 
-}  // namespace flkeeper
+
 
 #endif

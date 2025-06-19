@@ -13,8 +13,7 @@
 #include <atomic>
 #include <vector>
 
-namespace flkeeper {
-namespace log {
+namespace flkeeper::log {
 
 class AsyncLogging : NonCopyable {
 public:
@@ -24,7 +23,7 @@ public:
      * @param rollSize 滚动大小
      * @param flushInterval 刷新间隔，秒
      */
-    AsyncLogging(const std::string& basename,
+    AsyncLogging(std::string basename,
                 off_t rollSize,
                 int flushInterval = 3);
     ~AsyncLogging()
@@ -83,7 +82,7 @@ private:
     BufferVector buffers_;          // 待写入文件的缓冲区列表
 };
 
-} // namespace log
-} // namespace flkeeper
+} // namespace flkeeper::log
+
 
 #endif

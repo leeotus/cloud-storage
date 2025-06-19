@@ -2,16 +2,12 @@
 #include "utils/date/TimeStamp.hpp"
 #include "utils/log/LogFile.hpp"
 
-namespace flkeeper {
+namespace flkeeper::log {
 
-namespace log {
-
-AsyncLogging::AsyncLogging(const string &basename, off_t rollSize,
-                           int flushInterval)
+AsyncLogging::AsyncLogging(string basename, off_t rollSize, int flushInterval)
     : flushInterval_(flushInterval), running_(false), basename_(basename),
-      rollSize_(rollSize),
-      thread_(std::bind(&AsyncLogging::threadFunc, this), "Logging"), latch_(1),
-      mutex_(), cond_(mutex_), currentBuffer_(new Buffer),
+      rollSize_(rollSize), thread_([this] { threadFunc(); }, "Logging"),
+      latch_(1), mutex_(), cond_(mutex_), currentBuffer_(new Buffer),
       nextBuffer_(new Buffer), buffers_() {
   currentBuffer_->bzero();
   nextBuffer_->bzero();
@@ -20,12 +16,16 @@ AsyncLogging::AsyncLogging(const string &basename, off_t rollSize,
 
 void AsyncLogging::append(const char *logline, int len) {
   thread::PMutexLockGuard lock(mutex_);
+
   if (currentBuffer_->avail() > len) {
+    // 当前缓冲区足够，则直接加入缓冲区 NOTE: 这是最常见的情况
     currentBuffer_->append(logline, len);
   } else {
     buffers_.push_back(std::move(currentBuffer_));
 
     if (nextBuffer_) {
+      // 如果当前缓冲区不够用，则将备用缓冲区的权限交给当前缓冲区
+      // @note 后续需要使用 `nextBuffer_ = std::move(somebuffer);`的方式来为nextBuffer_分配缓冲区
       currentBuffer_ = std::move(nextBuffer_);
     } else {
       currentBuffer_.reset(new Buffer); // Rarely happens
@@ -38,13 +38,17 @@ void AsyncLogging::append(const char *logline, int len) {
 void AsyncLogging::threadFunc() {
   assert(running_ == true);
   latch_.countDown();
+
+  // 创建日志对象和两个缓冲区，用于后续的日志写入和交换
   LogFile output(basename_, rollSize_, false);
   BufferPtr newBuffer1(new Buffer);
   BufferPtr newBuffer2(new Buffer);
   newBuffer1->bzero();
   newBuffer2->bzero();
+
   BufferVector buffersToWrite;
   buffersToWrite.reserve(16);
+
   while (running_) {
     assert(newBuffer1 && newBuffer1->length() == 0);
     assert(newBuffer2 && newBuffer2->length() == 0);
@@ -107,6 +111,4 @@ void AsyncLogging::threadFunc() {
   output.flush();
 }
 
-} // namespace log
-
-} // namespace flkeeper
+} // namespace flkeeper::log

@@ -11,14 +11,17 @@
 #include "utils/date/TimeStamp.hpp"
 #include "utils/log/Logging.hpp"
 
-namespace flkeeper {
-namespace network {
+namespace flkeeper::network {
 
 using std::string;
 
 class HttpRequest : public Copyable {
 public:
+  // Http方法枚举
+  // @note kInvalid表示无效请求
   enum Method { kInvalid, kGet, kPost, kHead, kPut, kDelete };
+
+  // Http版本枚举
   enum Version { kUnknown, kHttp10, kHttp11 };
 
   // @brief 构造函数
@@ -101,14 +104,17 @@ public:
 
   TimeStamp receiveTime() const { return receiveTime_; }
 
+  // @note 对于"Content-Type: application/json", field="Content-Type", value="application/json"
   void addHeader(const char *start, const char *colon, const char *end) {
-    string field(start, colon);
-    ++colon;
+    string field(start, colon);   // 提取头部字段名，从start到colon之前的部分
+    ++colon;    // 跳过冒号
     while (colon < end && isspace(*colon)) {
+      // 跳过冒号之后的空格
       ++colon;
     }
-    string value(colon, end);
+    string value(colon, end);     // 提取头部字段的值
     while (!value.empty() && isspace(value[value.size() - 1])) {
+      // 去除值末尾的空格
       value.resize(value.size() - 1);
     }
     headers_[field] = value;
@@ -211,20 +217,20 @@ public:
   }
 
 private:
-  Method method_;
-  Version version_;
+  Method method_;       // 请求方法
+  Version version_;     // HTTP版本
 
-  string path_;
-  string query_;
-  string body_;
+  string path_;         // 请求路径
+  string query_;        // 存储请求的查询参数
+  string body_;         // 存储请求的主体内容
 
-  TimeStamp receiveTime_;
-  std::map<string, string> headers_;
+  TimeStamp receiveTime_;   // 存储请求的接收时间
+  std::map<string, string> headers_;    // 存储请求的头部信息
 
-  std::unordered_map<string, string> pathParams_;
+  std::unordered_map<string, string> pathParams_;   // 存储路径参数
 };
 
-} // namespace network
-} // namespace flkeeper
+} // namespace flkeeper::network
+
 
 #endif

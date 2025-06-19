@@ -5,21 +5,20 @@
 #include "utils/NonCopyable.hpp"
 #include <cstring>
 
-namespace flkeeper {
-namespace log {
+namespace flkeeper::log {
 
-constexpr DFLK_INT32 smallBufferLen = 4000;
-constexpr DFLK_INT32 largeBufferLen = 4000 * 1000;
+constexpr DFLK_INT32 smallBufferLen = 4096;
+constexpr DFLK_INT32 largeBufferLen = 4096 * 1024;
 
 template <DFLK_INT32 SIZE>
 class FixedBuffer : NonCopyable {
 public:
-  FixedBuffer() : cur_(data_) {}
+  FixedBuffer() : data_{}, cur_(data_) { memset(&data_, 0, sizeof(data_)); }
 
   /**
-   * @brief 往数据缓冲区末尾添加数据
+   * @brief 往数据缓冲区末尾添加数
    * @param buf 要添加的数据
-   * @param len 要添加的数据的长度
+   * @param len 要添加的数据的长
    */
   void append(const char* buf, size_t len) {
     if(avail() > static_cast<DFLK_INT32>(len)) {
@@ -29,12 +28,12 @@ public:
   }
 
   // @brief 获取缓冲区存储的数据
-  const char* data() const {
+  [[nodiscard]] const char* data() const {
     return data_;
   }
 
   // @brief 缓冲区保存数据的长度
-  DFLK_INT32 length() const {
+  [[nodiscard]] DFLK_INT32 length() const {
     return static_cast<DFLK_INT32>(cur_-data_);
   }
 
@@ -42,9 +41,10 @@ public:
   char *current() { return cur_; }
 
   // @brief 获取缓冲区还剩下多少字节
-  DFLK_INT32 avail() const { return static_cast<DFLK_INT32>(end() - cur_); }
+  [[nodiscard]] DFLK_INT32 avail() const { return static_cast<DFLK_INT32>(end() - cur_); }
 
   // @brief 清空数据缓冲区后需要调用该函数来修改缓冲区指针
+  // @note  可以不用清空数据缓冲区
   void reset() { cur_ = data_; }
 
   // @brief 清空数据缓冲区的所有数据
@@ -53,13 +53,14 @@ public:
   // @brief 往缓冲区加入数据之后需要使用该函数修改cur_指针的位置
   void add(size_t len) { cur_ += len; }
 
-  std::string toString() const { return std::string(data_, length()); }
+  [[nodiscard]] std::string toString() const { return std::string(data_, length()); }
 
 private:
   char data_[SIZE];     // 缓冲区
   char *cur_;           // 指向缓冲区存储的数据的末尾
 
-  const char *end() const { return data_+sizeof(data_); }
+  // @brief 获取 数据缓冲区的尾部
+  [[nodiscard]] const char *end() const { return data_+sizeof(data_); }
 };
 
 class LogStream : NonCopyable {
@@ -137,10 +138,25 @@ private:
 };
 
 class Fmt {
+public:
+  template<typename T>
+  Fmt(const char* fmt, T val);
 
+  const char* data() const { return buf_; }
+  int length() const { return length_; }
+
+private:
+  char buf_[32];
+  int length_;
 };
 
-} // namespace log
-} // namespace flkeeper
+inline LogStream& operator<<(LogStream& s, const Fmt& fmt)
+{
+  s.append(fmt.data(), fmt.length());
+  return s;
+}
+
+} // namespace flkeeper::log
+
 
 #endif

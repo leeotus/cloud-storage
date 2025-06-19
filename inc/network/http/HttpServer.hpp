@@ -1,14 +1,16 @@
 #ifndef __CLOUD_STORAGE_HTTPSERVER_HPP__
 #define __CLOUD_STORAGE_HTTPSERVER_HPP__
 
-#include "HttpContext.hpp"
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
 #include "network/TcpServer.hpp"
 
-namespace flkeeper {
-namespace network {
+namespace flkeeper::network {
 
+/**
+ * @brief 监听指定地址和端口，接收客户端的HTTP请求，解析请求内容，并根据用户设置
+ * 的回调函数处理请求,最后返回HTTP响应
+*/
 class HttpServer {
 public:
   using HttpCallback = std::function<bool(const TcpConnectionPtr &,
@@ -30,11 +32,14 @@ private:
                  TimeStamp receiveTime);
   bool onRequest(const TcpConnectionPtr &, HttpRequest &);
 
+  // 用于处理底层TCP连接和事件循环,HttpServer基于TcpServer实现，利用其
+  // 提供的功能来监听和处理TCP连接
   TcpServer server_;
+
+  // 用于处理HTTP请求,用户可以通过`setHttpCallback`方法来设置该回调函数,以实现自定义的请求处理逻辑
   HttpCallback httpCallback_;
 }; // class HttpServer
 
-} // namespace network
-} // namespace flkeeper
+} // namespace flkeeper::network
 
 #endif

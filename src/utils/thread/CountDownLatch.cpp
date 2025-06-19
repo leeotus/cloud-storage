@@ -1,8 +1,6 @@
 #include "utils/thread/CountDownLatch.hpp"
 
-namespace flkeeper {
-
-namespace thread {
+namespace flkeeper::thread {
 
 CountDownLatch::CountDownLatch(int count) : mutex_(), condition_(mutex_), count_(count) {}
 
@@ -26,6 +24,6 @@ int CountDownLatch::getCount() const {
   return count_;
 }
 
-}   // namespace thread
+} // namespace flkeeper::thread
 
-}   // namespace flkeeper
+

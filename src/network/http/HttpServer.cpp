@@ -1,3 +1,4 @@
+#include "network/http/HttpContext.hpp"
 #include "network/http/HttpServer.hpp"
 #include "utils/log/Logging.hpp"
 #include "network/TcpConnection.hpp"
@@ -57,6 +58,7 @@ void HttpServer::onMessage(const TcpConnectionPtr &conn, Buffer *buf,
         // 检查body数据大小
         size_t bufSize = req.body().size(); // 这个才是对的
         // LOG_INFO << "bufSize = " << bufSize;
+
         if (bufSize >= 1024 * 1024) { // 如果数据超过1MB
           // LOG_INFO << "Buffer size exceeds 1MB, processing chunk";
           HttpResponse response(false); // 不关闭连接
@@ -69,6 +71,7 @@ void HttpServer::onMessage(const TcpConnectionPtr &conn, Buffer *buf,
             LOG_INFO << "Sync upload chunk processed";
           }
         }
+
       }
     }
   } else if (result == HttpContext::kGotRequest) { // 整个请求解析完成

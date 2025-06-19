@@ -87,7 +87,7 @@ private:
   std::map<std::string, std::string> headers_;
   HttpStatusCode statusCode_;
   std::string statusMessage_;
-  bool closeConnection_;
+  bool closeConnection_;              // 是否关闭连接
   std::string body_;
   bool async_;                        // 是否为异步响应
   ResponseCallback responseCallback_; // 响应回调函数

@@ -2,10 +2,9 @@
 #include "utils/date/TimeStamp.hpp"
 #include "utils/log/Logging.hpp"
 #include <algorithm>
-#include <string.h>
+#include <cstring>
 
-namespace flkeeper {
-namespace network {
+namespace flkeeper::network {
 
 bool HttpContext::processRequestLine(const char *begin, const char *end) {
   bool succeed = false;
@@ -84,7 +83,8 @@ bool HttpContext::processHeaders(Buffer *buf) {
 
 bool HttpContext::processBody(Buffer *buf) {
   if (isChunked_) {
-    // TODO: 处理 chunked 传输
+    // TODO: 处理浏览器的chunked传输方式
+
     return false;
   } else {
     size_t readable = buf->readableBytes();
@@ -113,13 +113,15 @@ HttpContext::ParseResult HttpContext::parseRequest(Buffer *buf,
 
   while (hasMore) {
     if (state_ == kExpectRequestLine) {
+      // 处于kExpectRequestLine状态,首先查找请求行的结束符(CRLF)
       const char *crlf = buf->findCRLF();
       if (crlf) {
+        // 解析找到的请求行
         ok = processRequestLine(buf->peek(), crlf);
         if (ok) {
           request_.setReceiveTime(receiveTime);
           buf->retrieveUntil(crlf + 2);
-          state_ = kExpectHeaders;
+          state_ = kExpectHeaders; // 设置状态为kExpectHeaders
         } else {
           result = kError;
           hasMore = false;
@@ -166,5 +168,4 @@ HttpContext::ParseResult HttpContext::parseRequest(Buffer *buf,
   return result; // 只要不是错误状态都返回true
 }
 
-} // namespace network
-} // namespace flkeeper
+}

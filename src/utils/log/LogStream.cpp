@@ -5,16 +5,15 @@
 #include <stdint.h>
 #include <stdio.h>
 
-namespace flkeeper {
-namespace log {
+namespace flkeeper::log {
 /**----------------------------------------------
  * *                 LogStream
  *---------------------------------------------**/
-const char digits[] = "9876543210123456789";
+constexpr char digits[] = "9876543210123456789";
 const char* zero = digits + 9;
 static_assert(sizeof(digits) == 20, "wrong number of digits");
 
-const char digitsHex[] = "0123456789ABCDEF";
+constexpr char digitsHex[] = "0123456789ABCDEF";
 static_assert(sizeof(digitsHex) == 17, "wrong number of digitsHex");
 
 template<typename T>
@@ -142,5 +141,5 @@ template <typename T> void LogStream::formatInteger(T v) {
   }
 }
 
-} // namespace log
-} // namespace flkeeper
+} // namespace flkeeper::log
+

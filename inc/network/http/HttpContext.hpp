@@ -10,30 +10,29 @@
 #include <memory>
 #include <unordered_map>
 
-namespace flkeeper {
-namespace network {
+namespace flkeeper::network {
 
 class HttpContext : public NonCopyable
 {
  public:
   enum HttpRequestParseState
   {
-    kExpectRequestLine, //0
-    kExpectHeaders,     //1
-    kExpectBody,        //2
-    kGotAll,           //3
+    // 解析过程的不同状态
+    kExpectRequestLine, // 期望解析请求行
+    kExpectHeaders,     // 期望解析请求头部
+    kExpectBody,        // 期望解析请求体
+    kGotAll,            // 完成全部请求的解析
   };
 
   enum ParseResult
   {
     kError = -1,           // 解析出错
     kNeedMore = 0,         // 需要更多数据
-    kHeadersComplete = 1,  // 头部解析完成
-    kGotRequest = 2        // 整个请求解析完成
+    kHeadersComplete = 1, // 头部解析完成
+    kGotRequest = 2       // 整个请求解析完成
   };
 
-  HttpContext()
-    : state_(kExpectRequestLine),
+  HttpContext() :
       contentLength_(0),
       bodyReceived_(0),
       isChunked_(false)
@@ -49,13 +48,13 @@ class HttpContext : public NonCopyable
   // default copy-ctor, dtor and assignment are fine
 
   // 返回false表示解析出错，true表示解析成功（包括需要更多数据和解析完成的情况）
-  HttpContext::ParseResult parseRequest(Buffer* buf, TimeStamp receiveTime);
+  ParseResult parseRequest(Buffer* buf, TimeStamp receiveTime);
+
   bool gotAll() const
   { return state_ == kGotAll; }
 
    bool expectBody() const
   { return state_ == kExpectBody; }
-
 
   bool headersComplete() const
   { return state_ == kExpectBody || state_ == kGotAll; }
@@ -66,6 +65,7 @@ class HttpContext : public NonCopyable
   bool isChunked() const
   { return isChunked_; }
 
+  // @brief 重置
   void reset()
   {
     state_ = kExpectRequestLine;
@@ -77,12 +77,13 @@ class HttpContext : public NonCopyable
     customContext_.reset();
   }
 
+  // @brief 获取request
   const HttpRequest& request() const
   { return request_; }
-
   HttpRequest& request()
   { return request_; }
 
+  // @brief 返回解析的状态
   HttpRequestParseState state() const { return state_; }
 
   template<typename T>
@@ -95,11 +96,16 @@ class HttpContext : public NonCopyable
   }
 
  private:
+  // @brief 用于解析http请求行，提取请求方法、请求路径、查询数和HTTP版本信息
   bool processRequestLine(const char* begin, const char* end);
+
+  // @brief 解析HTTP请求头部，将头部字段和对应的值存储在headers_成员中
   bool processHeaders(Buffer* buf);
+
+  // @brief 用于处理HTTP请求体
   bool processBody(Buffer* buf);
 
-  HttpRequestParseState state_ = HttpRequestParseState::kExpectRequestLine;
+  HttpRequestParseState state_ = kExpectRequestLine;
   HttpRequest request_;
   size_t contentLength_;  // 用于存储 Content-Length 的值
   size_t bodyReceived_;   // 已接收的 body 长度
@@ -107,7 +113,7 @@ class HttpContext : public NonCopyable
   std::shared_ptr<void> customContext_;  // 自定义上下文存储
 };
 
-}   // namespace network
-}   // namespace flkeeper
+} // namespace flkeeper::network
+
 
 #endif
