@@ -28,6 +28,13 @@ public:
 
 private:
   void onConnection(const TcpConnectionPtr &conn);
+
+  /**
+   * @brief 负责处理接收到的HTTP消息
+   * @param conn 表示一个TCP连接的智能指针,用于与客户端进行通信
+   * @param buf 指向Buffer对象的指针,用于缓存接收到的数据
+   * @param receiveTime 接收消息的时间戳(i.e., 接收到该数据的时刻)
+   */
   void onMessage(const TcpConnectionPtr &conn, Buffer *buf,
                  TimeStamp receiveTime);
   bool onRequest(const TcpConnectionPtr &, HttpRequest &);

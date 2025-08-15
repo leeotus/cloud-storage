@@ -70,6 +70,7 @@ void AsyncLogging::threadFunc() {
 
     assert(!buffersToWrite.empty());
 
+    // @note 日志产生的速度超过后端处理的速度,导致缓冲区堆积过多,丢失部分日志并记录警告,避免内存溢出
     if (buffersToWrite.size() > 25) {
       char buf[256];
       snprintf(buf, sizeof buf,

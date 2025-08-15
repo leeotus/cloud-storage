@@ -158,5 +158,4 @@ inline LogStream& operator<<(LogStream& s, const Fmt& fmt)
 
 } // namespace flkeeper::log
 
-
 #endif

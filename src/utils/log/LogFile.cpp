@@ -70,7 +70,7 @@ bool LogFile::rollFile() {
     lastRoll_ = now;
     lastFlush_ = now;
     startOfPeriod_ = start;
-    file_.reset(new AppendFile(filename));
+    file_.reset(new AppendFile(filename)); // 创建一个新的文件
     return true;
   }
   return false;

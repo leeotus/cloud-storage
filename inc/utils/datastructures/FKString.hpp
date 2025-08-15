@@ -9,6 +9,7 @@ namespace flkeeper {
 /**
  * @brief 轻量级字符串视图类
  * 用于高效传递字符串,不拥有字符串数据
+ * @note 清除FKString对象不会导致原本的字符串数据被清除
  */
 class FKString {
 public:

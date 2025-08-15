@@ -18,6 +18,12 @@ typedef std::string& StringArg;
 
 class InetAddress : public Copyable {
 public:
+  /**
+   * @brief Construct a new Inet Address object
+   * @param port 监听端口
+   * @param loopbackOnly 当loopbackOnly为true时,绑定地址为127.0.0.1,只允许本地进程访问
+   * 当loopbackOnly为false的时候,绑定地址为0.0.0.0,允许任何网络接口访问
+   */
   explicit InetAddress(DFLK_UINT16 port = 0, bool loopbackOnly = false);
 
   InetAddress(StringArg ip, DFLK_UINT16 port);

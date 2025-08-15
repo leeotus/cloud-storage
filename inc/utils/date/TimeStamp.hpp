@@ -10,6 +10,7 @@ namespace date {
 
 /**
  * @brief 时间戳类，精确到微秒
+ * @note 1s = 1000ms = 1000 * 1000 us
  */
 class TimeStamp : public Copyable {
 public:
@@ -43,6 +44,7 @@ public:
   time_t secondsSinceEpoch() const;
 
   // @brief 获取当前时间
+  // @note 时间戳核心函数, 主要使用"gettimeofday"来获取
   static TimeStamp now();
 
   // @brief 获取一个无效的时间戳
@@ -65,7 +67,7 @@ public:
   }
 
 private:
-  DFLK_INT64 microSecondsSinceEpoch_;   // 从Unix纪元开始的微秒数
+  DFLK_INT64 microSecondsSinceEpoch_;   // 保存的时间戳timestamp,从Unix纪元开始的微秒数
 };
 
 // @brief 比较两个时间戳

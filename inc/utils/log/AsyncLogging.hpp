@@ -15,6 +15,7 @@
 
 namespace flkeeper::log {
 
+// @note 双缓冲异步日志
 class AsyncLogging : NonCopyable {
 public:
     /**
@@ -36,6 +37,7 @@ public:
 
     /**
      * @brief 前端调用接口，写入日志
+     * @note 前端可以通过此API向缓存区写入信息,后端通过线程来处理写入的日志
      */
     void append(const char* logline, int len);
 

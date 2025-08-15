@@ -134,6 +134,13 @@ void LogStream::append(const char *data, size_t len) {
   buffer_.append(data, len);
 }
 
+template <typename T>
+Fmt::Fmt(const char *fmt, T val) {
+  static_assert(std::is_arithmetic<T>::value == true, "Must be arithmetic type");
+  length_ = snprintf(buf_, sizeof(buf_), fmt, val);
+  assert(static_cast<size_t>(length_) < sizeof(buf_));
+}
+
 template <typename T> void LogStream::formatInteger(T v) {
   if (buffer_.avail() >= kMaxNumericSize) {
     size_t len = convert(buffer_.current(), v);

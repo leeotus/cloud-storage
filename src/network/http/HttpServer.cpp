@@ -50,15 +50,17 @@ void HttpServer::onMessage(const TcpConnectionPtr &conn, Buffer *buf,
   }
 
   if (result == HttpContext::kHeadersComplete) { // 头部解析完成
+    // 头部解析完成之后接下来要上传的是主体数据,body
     // 如果是大文件上传，在这里就可以开始处理了
     if (context->expectBody()) {
       HttpRequest &req = context->request(); // 改为非const引用
-      // 检查是否是文件上传请求
+      // 检查是否是文件上传请求: 请求路径是/upload,且请求方法是POST
       if (req.path() == "/upload" && req.method() == HttpRequest::kPost) {
         // 检查body数据大小
-        size_t bufSize = req.body().size(); // 这个才是对的
+        size_t bufSize = req.body().size();
         // LOG_INFO << "bufSize = " << bufSize;
 
+        // ! 优化大文件的上传, 这里暂时设置超过1MB的为大文件
         if (bufSize >= 1024 * 1024) { // 如果数据超过1MB
           // LOG_INFO << "Buffer size exceeds 1MB, processing chunk";
           HttpResponse response(false); // 不关闭连接

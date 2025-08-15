@@ -12,6 +12,7 @@ namespace log {
 
 class Logger {
 public:
+  // log日志级别
   enum LogLevel {
     TRACE,
     DEBUG,

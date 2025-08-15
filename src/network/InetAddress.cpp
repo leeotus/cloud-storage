@@ -34,6 +34,7 @@ InetAddress::InetAddress(DFLK_UINT16 port, bool loopbackOnly) {
 
 InetAddress::InetAddress(StringArg ip, DFLK_UINT16 port) {
   if (isIpV6Address(ip.c_str())) {
+    // 如果是ipv6地址
     ::bzero(&addr6_, sizeof addr6_);
     addr6_.sin6_family = AF_INET6;
     addr6_.sin6_port = hostToNetwork16(port);

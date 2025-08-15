@@ -6,6 +6,7 @@
 #include <vector>
 #include <memory>
 #include <mutex>
+#include <algorithm>
 
 #include "utils/thread/CurrentThread.hpp"
 #include "utils/date/TimeStamp.hpp"

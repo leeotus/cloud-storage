@@ -18,8 +18,9 @@ std::string TimeStamp::toFormattedString(bool showMicroSec) const {
   char buf[64] = {0};
   struct tm tm_time;
   time_t seconds = static_cast<time_t>(microSecondsSinceEpoch_ / kMicroSecondsPerSec);
-  gmtime_r(&seconds, &tm_time);
+  gmtime_r(&seconds, &tm_time); // @note long类型转换为struct tm类型
 
+  // 显示精度ms
   if(showMicroSec) {
     int microseconds =
         static_cast<DFLK_INT64>(microSecondsSinceEpoch_ % kMicroSecondsPerSec);
